@@ -1,0 +1,20 @@
+<div class="bg-surface-100 dark:bg-surface-950 h-screen w-screen flex items-center justify-center">
+    <div class="bg-surface-0 dark:bg-surface-900 py-16 px-8 sm:px-16 shadow flex flex-col w-11/12 sm:w-120"
+        style="border-radius: 14px">
+        <img src="/demo/images/logo.svg" alt="login" class="mb-6 self-center" style="width: 100px;" />
+        <p class="text-muted-color mb-6">Welcome to the <strong>Verona Community</strong>, where the magic happens, sign
+            in to continue.</p>
+
+        <p-iconfield class="mb-6">
+            <p-inputicon class="pi pi-user" />
+            <input pInputText type="text" placeholder="Email" class="w-full" />
+        </p-iconfield>
+
+        <p-iconfield class="mb-6">
+            <p-inputicon class="pi pi-key" />
+            <input pInputText type="password" placeholder="Password" class="w-full" />
+        </p-iconfield>
+
+        <p-button label="Sign In" styleClass="mb-6 w-full" [routerLink]="'/'"></p-button>
+    </div>
+</div>

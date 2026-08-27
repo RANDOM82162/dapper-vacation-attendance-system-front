@@ -39,7 +39,7 @@ interface ImportedEmployeeLog {
 export class AttendanceService {
     private readonly roleContext = inject(RoleContextService);
 
-    private readonly currentEmployee = 'Jose Alejandro Paz';
+    private readonly currentEmployee = 'Alejandro Paz';
 
     private readonly excludedManagers = ['saul casal', 'jorge diaz', 'cinthia montoya', 'saul', 'jorge', 'cinthia'];
 

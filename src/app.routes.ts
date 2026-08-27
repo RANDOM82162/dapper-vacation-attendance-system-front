@@ -10,11 +10,11 @@ export const appRoutes: Routes = [
             { path: 'vacaciones/nueva', data: { breadcrumb: 'Nueva solicitud' }, loadComponent: () => import('@/app/pages/hr/vacations/new-vacation-request').then((c) => c.NewVacationRequest) },
             { path: 'vacaciones/mis-solicitudes', data: { breadcrumb: 'Mis solicitudes' }, loadComponent: () => import('@/app/pages/hr/vacations/my-requests').then((c) => c.MyRequests) },
             { path: 'vacaciones/aprobaciones', data: { breadcrumb: 'Solicitudes por aprobar' }, loadComponent: () => import('@/app/pages/hr/vacations/approvals').then((c) => c.VacationApprovals) },
+            { path: 'vacaciones/historial', data: { breadcrumb: 'Historial de solicitudes' }, loadComponent: () => import('@/app/pages/hr/vacations/request-history').then((c) => c.RequestHistory) },
             { path: 'vacaciones/saldos', data: { breadcrumb: 'Dias disponibles' }, loadComponent: () => import('@/app/pages/hr/vacations/vacation-balance').then((c) => c.VacationBalance) },
             { path: 'asistencia/cargar', data: { breadcrumb: 'Cargar asistencia' }, loadComponent: () => import('@/app/pages/hr/attendance/upload-attendance').then((c) => c.UploadAttendance) },
-            { path: 'asistencia/reporte', data: { breadcrumb: 'Reporte semanal' }, loadComponent: () => import('@/app/pages/hr/attendance/attendance-report').then((c) => c.AttendanceReport) },
-            { path: 'admin/empleados', data: { breadcrumb: 'Empleados' }, loadComponent: () => import('@/app/pages/hr/admin/employees').then((c) => c.Employees) },
-            { path: 'admin/plantillas', data: { breadcrumb: 'Plantillas de respuesta' }, loadComponent: () => import('@/app/pages/hr/admin/templates').then((c) => c.ResponseTemplates) }
+            { path: 'asistencia/reporte', data: { breadcrumb: 'Reporte semanal de asistencia' }, loadComponent: () => import('@/app/pages/hr/attendance/attendance-report').then((c) => c.AttendanceReport) },
+            { path: 'admin/empleados', data: { breadcrumb: 'Empleados' }, loadComponent: () => import('@/app/pages/hr/admin/employees').then((c) => c.Employees) }
         ]
     },
     { path: 'auth', loadChildren: () => import('@/app/pages/auth/auth.routes') },

@@ -53,6 +53,7 @@ export class AppMenu {
                 routerLink: ['/vacaciones/aprobaciones'],
                 items: [
                     { label: 'Solicitudes por aprobar', icon: 'pi pi-check-square', routerLink: ['/vacaciones/aprobaciones'] },
+                    { label: 'Historial de solicitudes', icon: 'pi pi-history', routerLink: ['/vacaciones/historial'] },
                     { label: 'Saldos del equipo', icon: 'pi pi-calendar-clock', routerLink: ['/vacaciones/saldos'] }
                 ]
             },
@@ -61,19 +62,7 @@ export class AppMenu {
                 icon: 'pi pi-id-card',
                 path: '/asistencia',
                 routerLink: ['/asistencia/reporte'],
-                items: [{ label: 'Asistencia del equipo', icon: 'pi pi-table', routerLink: ['/asistencia/reporte'] }]
-            }
-        ];
-
-        const adminVacations = [
-            {
-                label: 'Vacaciones',
-                icon: 'pi pi-calendar',
-                path: '/vacaciones',
-                routerLink: ['/vacaciones/saldos'],
-                items: [
-                    { label: 'Dias disponibles', icon: 'pi pi-calendar-clock', routerLink: ['/vacaciones/saldos'] }
-                ]
+                items: [{ label: 'Reporte semanal de asistencia', icon: 'pi pi-table', routerLink: ['/asistencia/reporte'] }]
             }
         ];
 
@@ -84,7 +73,7 @@ export class AppMenu {
                 path: '/asistencia',
                 routerLink: ['/asistencia/reporte'],
                 items: [
-                    { label: 'Reporte semanal', icon: 'pi pi-table', routerLink: ['/asistencia/reporte'] },
+                    { label: 'Reporte semanal de asistencia', icon: 'pi pi-table', routerLink: ['/asistencia/reporte'] },
                     { label: 'Cargar Excel', icon: 'pi pi-upload', routerLink: ['/asistencia/cargar'] }
                 ]
             }
@@ -97,6 +86,7 @@ export class AppMenu {
                 path: '/equipo',
                 items: [
                     { label: 'Solicitudes por aprobar', icon: 'pi pi-check-square', routerLink: ['/vacaciones/aprobaciones'] },
+                    { label: 'Historial de solicitudes', icon: 'pi pi-history', routerLink: ['/vacaciones/historial'] },
                     { label: 'Saldos del equipo', icon: 'pi pi-calendar-clock', routerLink: ['/vacaciones/saldos'] }
                 ]
             }
@@ -109,8 +99,7 @@ export class AppMenu {
                 path: '/admin',
                 routerLink: ['/admin/empleados'],
                 items: [
-                    { label: 'Empleados', icon: 'pi pi-users', routerLink: ['/admin/empleados'] },
-                    { label: 'Plantillas', icon: 'pi pi-envelope', routerLink: ['/admin/plantillas'] }
+                    { label: 'Empleados', icon: 'pi pi-users', routerLink: ['/admin/empleados'] }
                 ]
             }
         ];
@@ -121,7 +110,7 @@ export class AppMenu {
             case 'manager':
                 return [...shared, ...manager];
             default:
-                return [...shared, ...adminVacations, ...adminTeam, ...adminAttendance, ...admin];
+                return [...shared, ...adminTeam, ...adminAttendance, ...admin];
         }
     });
 }

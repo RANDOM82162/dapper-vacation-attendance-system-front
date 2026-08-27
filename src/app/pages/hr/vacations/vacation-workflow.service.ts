@@ -1,6 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
 
-export type VacationStatus = 'Borrador' | 'Pendiente' | 'Aprobada' | 'Rechazada' | 'Cambios solicitados';
+export type VacationStatus = 'Pendiente' | 'Aprobada' | 'Rechazada' | 'Cambios solicitados';
 export type TagSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
 
 export interface VacationRequest {
@@ -38,67 +38,65 @@ export interface VacationDraft {
     providedIn: 'root'
 })
 export class VacationWorkflowService {
-    private readonly currentEmployee = 'Jose Alejandro Paz';
+    private readonly currentEmployee = 'Alejandro Paz';
 
     readonly requests = signal<VacationRequest[]>([
         {
             id: 'VAC-001',
-            employee: 'Jose Alejandro Paz',
+            employee: 'Alejandro Paz',
             department: 'Desarrollo',
-            manager: 'Mariana Torres',
+            manager: 'Cinthia Montoya',
             startDate: '2026-09-07',
             endDate: '2026-09-11',
             days: 5,
             comments: 'Solicito estos dias para descanso programado.',
             status: 'Pendiente',
             updatedAt: 'Enviada hoy',
-            history: ['Solicitud creada por Jose Alejandro Paz.', 'Solicitud enviada a Mariana Torres.']
+            history: ['Solicitud creada por Alejandro Paz.', 'Solicitud enviada a Cinthia Montoya.']
         },
         {
             id: 'VAC-002',
-            employee: 'Jose Alejandro Paz',
+            employee: 'Alejandro Paz',
             department: 'Desarrollo',
-            manager: 'Mariana Torres',
+            manager: 'Cinthia Montoya',
             startDate: '2026-07-15',
             endDate: '2026-07-16',
             days: 2,
             comments: 'Permiso aprobado previamente por direccion.',
             status: 'Aprobada',
-            updatedAt: 'Aprobada por direccion',
-            history: ['Solicitud creada.', 'Solicitud aprobada por Mariana Torres.', 'Saldo actualizado: -2 dias.']
+            updatedAt: 'Aprobada por Cinthia Montoya',
+            history: ['Solicitud creada por Alejandro Paz.', 'Solicitud aprobada por Cinthia Montoya.', 'Saldo actualizado: -2 dias.']
         },
         {
             id: 'VAC-003',
-            employee: 'Daniela Ruiz',
-            department: 'Diseno',
-            manager: 'Mariana Torres',
-            startDate: '2026-09-14',
-            endDate: '2026-09-18',
-            days: 5,
-            comments: 'Vacaciones familiares programadas.',
-            status: 'Pendiente',
-            updatedAt: 'Pendiente desde ayer',
-            history: ['Solicitud creada por Daniela Ruiz.', 'Solicitud enviada a Mariana Torres.']
+            employee: 'Alejandro Paz',
+            department: 'Desarrollo',
+            manager: 'Cinthia Montoya',
+            startDate: '2026-10-05',
+            endDate: '2026-10-07',
+            days: 3,
+            comments: 'Solicito fechas para un compromiso personal.',
+            status: 'Rechazada',
+            updatedAt: 'Rechazada por jefe/director',
+            history: ['Solicitud creada por Alejandro Paz.', 'Solicitud enviada a Cinthia Montoya.', 'Solicitud rechazada por jefe/director.']
         },
         {
             id: 'VAC-004',
-            employee: 'Carlos Mendez',
-            department: 'Soporte',
-            manager: 'Mariana Torres',
-            startDate: '2026-09-21',
-            endDate: '2026-09-25',
-            days: 5,
-            comments: 'Requiere revision por saldo insuficiente.',
-            status: 'Pendiente',
-            updatedAt: 'Pendiente desde ayer',
-            history: ['Solicitud creada por Carlos Mendez.', 'Validacion detecto saldo insuficiente.']
+            employee: 'Alejandro Paz',
+            department: 'Desarrollo',
+            manager: 'Cinthia Montoya',
+            startDate: '2026-11-18',
+            endDate: '2026-11-20',
+            days: 3,
+            comments: 'Solicito ajuste de fechas por viaje familiar.',
+            status: 'Cambios solicitados',
+            updatedAt: 'Jefe/director solicito cambios',
+            history: ['Solicitud creada por Alejandro Paz.', 'Solicitud enviada a Cinthia Montoya.', 'Jefe/director solicito cambios en fechas o comentarios.']
         }
     ]);
 
     readonly balances = signal<VacationBalanceRecord[]>([
-        { employee: 'Jose Alejandro Paz', department: 'Desarrollo', initial: 14, used: 2, available: 12, lastMove: 'Solicitud aprobada el 16 jul.' },
-        { employee: 'Daniela Ruiz', department: 'Diseno', initial: 10, used: 5, available: 5, lastMove: 'Carga inicial validada' },
-        { employee: 'Carlos Mendez', department: 'Soporte', initial: 8, used: 5, available: 3, lastMove: 'Ajuste manual de RH' }
+        { employee: 'Alejandro Paz', department: 'Desarrollo', initial: 14, used: 2, available: 12, lastMove: 'Solicitud aprobada el 16 jul.' }
     ]);
 
     readonly myRequests = computed(() => this.requests().filter((request) => request.employee === this.currentEmployee));
@@ -119,8 +117,8 @@ export class VacationWorkflowService {
             days: Number(draft.days),
             comments: draft.comments,
             status,
-            updatedAt: status === 'Borrador' ? 'Guardada como borrador' : 'Enviada hoy',
-            history: status === 'Borrador' ? ['Borrador guardado por el empleado.'] : ['Solicitud creada por el empleado.', `Solicitud enviada a ${draft.manager}.`]
+            updatedAt: 'Enviada hoy',
+            history: ['Solicitud creada por el empleado.', `Solicitud enviada a ${draft.manager}.`]
         };
 
         this.requests.update((requests) => [request, ...requests]);
@@ -198,6 +196,14 @@ export class VacationWorkflowService {
 
     getBalance(employee: string) {
         return this.balances().find((balance) => balance.employee === employee);
+    }
+
+    getRequestsByEmployee(employee: string) {
+        return this.requests().filter((request) => request.employee === employee);
+    }
+
+    getTakenVacationRequests(employee: string) {
+        return this.getRequestsByEmployee(employee).filter((request) => request.status === 'Aprobada');
     }
 
     canApprove(request: VacationRequest) {

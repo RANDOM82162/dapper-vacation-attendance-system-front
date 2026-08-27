@@ -123,7 +123,7 @@ export class HrDashboard {
         },
         manager: {
             title: 'Panel de jefe/director',
-            subtitle: 'Revisa solicitudes, saldos y asistencia del equipo bajo tu responsabilidad.',
+            subtitle: 'Revisa solicitudes, saldos y asistencia del equipo.',
             mainTitle: 'Trabajo de aprobacion',
             tag: 'Equipo',
             tagSeverity: 'warn' as const,
@@ -142,12 +142,12 @@ export class HrDashboard {
             actions: [
                 { label: 'Solicitudes por aprobar', text: 'Atender pendientes del equipo.', icon: 'pi pi-check-square', route: ['/vacaciones/aprobaciones'] },
                 { label: 'Saldos del equipo', text: 'Revisar dias disponibles.', icon: 'pi pi-calendar-clock', route: ['/vacaciones/saldos'] },
-                { label: 'Asistencia del equipo', text: 'Ver resumen semanal.', icon: 'pi pi-table', route: ['/asistencia/reporte'] }
+                { label: 'Reporte semanal de asistencia', text: 'Ver resumen semanal.', icon: 'pi pi-table', route: ['/asistencia/reporte'] }
             ]
         },
         admin: {
             title: 'Panel de administracion RH',
-            subtitle: 'Administra empleados, vacaciones, asistencia, plantillas y reportes.',
+            subtitle: 'Administra empleados, vacaciones, asistencia y reportes.',
             mainTitle: 'Operacion de Recursos Humanos',
             tag: 'Control total',
             tagSeverity: 'danger' as const,
@@ -161,12 +161,11 @@ export class HrDashboard {
                 { title: 'Gestionar empleados', text: 'Mantiene perfiles, departamentos, jefes y estados.' },
                 { title: 'Controlar saldos', text: 'Consulta y ajusta dias disponibles cuando RH lo autorice.' },
                 { title: 'Procesar asistencia', text: 'Carga el Excel de la maquina de huella y simplifica la semana.' },
-                { title: 'Generar reportes', text: 'Prepara reportes PDF y plantillas de respuesta.' }
+                { title: 'Generar reportes', text: 'Prepara reportes PDF para seguimiento interno.' }
             ],
             actions: [
                 { label: 'Empleados', text: 'Administrar personal y roles.', icon: 'pi pi-users', route: ['/admin/empleados'] },
-                { label: 'Cargar Excel', text: 'Importar registros de huella.', icon: 'pi pi-upload', route: ['/asistencia/cargar'] },
-                { label: 'Plantillas', text: 'Editar respuestas automaticas.', icon: 'pi pi-envelope', route: ['/admin/plantillas'] }
+                { label: 'Cargar Excel', text: 'Importar registros de huella.', icon: 'pi pi-upload', route: ['/asistencia/cargar'] }
             ]
         }
     };

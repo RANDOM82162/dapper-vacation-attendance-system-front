@@ -47,7 +47,6 @@ import { VacationWorkflowService } from './vacation-workflow.service';
                 </div>
 
                 <div class="flex flex-wrap justify-end gap-3 mt-6">
-                    <p-button label="Guardar borrador" icon="pi pi-save" severity="secondary" outlined (onClick)="saveDraft()" />
                     <p-button label="Enviar solicitud" icon="pi pi-send" [disabled]="!canSubmit()" (onClick)="submitRequest()" />
                 </div>
             </div>
@@ -80,7 +79,7 @@ export class NewVacationRequest {
         startDate: '2026-09-07',
         endDate: '2026-09-11',
         days: 5,
-        manager: 'Mariana Torres',
+        manager: 'Cinthia Montoya',
         comments: 'Solicito estos dias para descanso programado.'
     };
 
@@ -98,8 +97,4 @@ export class NewVacationRequest {
         this.router.navigate(['/vacaciones/mis-solicitudes']);
     }
 
-    saveDraft() {
-        this.workflow.createRequest(this.request, 'Borrador');
-        this.router.navigate(['/vacaciones/mis-solicitudes']);
-    }
 }

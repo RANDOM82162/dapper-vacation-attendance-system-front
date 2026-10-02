@@ -1,7 +1,6 @@
 <div class="layout-topbar">
-    <a class="app-logo" routerLink="/">
-        <img alt="app logo" [src]="logo()" />
-        <span class="app-name">Dapper RH</span>
+    <a class="app-logo" routerLink="/" aria-label="Inicio">
+        <img [src]="brandLogo()" alt="Dapper" />
     </a>
 
     <button #menubutton class="topbar-menubutton p-link cursor-pointer" type="button" (click)="onMenuButtonClick()">
@@ -29,54 +28,55 @@
         <!-- <p-button icon="pi pi-palette" rounded severity="contrast" (onClick)="onConfigButtonClick()"></p-button> -->
         <p-button [icon]="themeIcon()" [rounded]="true" severity="secondary" [outlined]="true" (onClick)="toggleTheme()"></p-button>
 
-        <div class="topbar-search" [ngClass]="{ 'topbar-search-active': searchActive() }">
-            <button pButton [rounded]="true" severity="secondary" type="button" icon="pi pi-search"
-                (click)="activateSearch()"></button>
-
-            <div class="search-input-wrapper">
-                <p-icon-field>
-                    <input #searchinput type="text" pInputText placeholder="Search" (blur)="deactivateSearch()"
-                        (keydown.escape)="deactivateSearch()" />
-                    <p-inputicon class="pi pi-search" />
-                </p-icon-field>
-            </div>
-        </div>
-
-        <p-select [(ngModel)]="selectedRole" [options]="roleContext.roles" optionLabel="label" optionValue="value" appendTo="body" styleClass="w-48 hidden md:flex"></p-select>
-
         <div class="topbar-profile">
             <button class="topbar-profile-button" type="button" pStyleClass="@next" enterFromClass="hidden"
                 enterActiveClass="animate-scalein" leaveToClass="hidden" leaveActiveClass="animate-fadeout"
                 [hideOnOutsideClick]="true">
-                <img alt="avatar" src="/layout/images/avatar.png" />
+                <span class="profile-avatar w-10 h-10 rounded-full bg-primary text-primary-contrast flex items-center justify-center font-semibold">
+                    {{ profileInitials() }}
+                </span>
                 <span class="profile-details">
-                    <span class="profile-name">Usuario demo</span>
+                    <span class="profile-name-row">
+                        <span class="profile-name">{{ profileName() }}</span>
+                        @if (notificationsState.unreadCount() > 0) {
+                            <span class="notification-badge profile-notification-badge">{{ notificationsState.unreadBadge() }}</span>
+                        }
+                    </span>
                     <span class="profile-job">{{ roleContext.currentRoleLabel() }}</span>
                 </span>
                 <i class="pi pi-angle-down"></i>
             </button>
             <ul
-                class="list-none hidden p-2 sm:p-4 m-0 rounded-border shadow absolute bg-surface-0 dark:bg-surface-900 origin-top w-48 mt-2 right-0 top-auto">
+                class="list-none hidden p-2 sm:p-4 m-0 rounded-border shadow absolute bg-surface-0 dark:bg-surface-900 origin-top w-56 mt-2 right-0 top-auto">
                 <li class="flex items-start flex-col">
                     <a pRipple
-                        class="flex p-2 rounded-border w-full items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer">
+                        routerLink="/cuenta/perfil"
+                        class="flex p-2 rounded-border w-full items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer no-underline text-color">
                         <i class="pi pi-user mr-4"></i>
-                        <span>Profile</span>
+                        <span>Perfil</span>
                     </a>
                     <a pRipple
-                        class="flex p-2 rounded-border w-full items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer">
+                        routerLink="/cuenta/notificaciones"
+                        class="flex p-2 rounded-border w-full items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer no-underline text-color">
                         <i class="pi pi-inbox mr-4"></i>
-                        <span>Inbox</span>
+                        <span class="notification-menu-label">
+                            <span>Notificaciones</span>
+                            @if (notificationsState.unreadCount() > 0) {
+                                <span class="notification-badge menu-notification-badge">{{ notificationsState.unreadBadge() }}</span>
+                            }
+                        </span>
                     </a>
                     <a pRipple
-                        class="flex p-2 rounded-border w-full items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer">
+                        routerLink="/cuenta/configuracion"
+                        class="flex p-2 rounded-border w-full items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer no-underline text-color">
                         <i class="pi pi-cog mr-4"></i>
-                        <span>Settings</span>
+                        <span>Configuración</span>
                     </a>
                     <a pRipple
-                        class="flex p-2 rounded-border w-full items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer">
+                        class="flex p-2 rounded-border w-full items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer"
+                        (click)="signOut()">
                         <i class="pi pi-power-off mr-4"></i>
-                        <span>Sign Out</span>
+                        <span>Cerrar sesión</span>
                     </a>
                 </li>
             </ul>

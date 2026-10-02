@@ -32,7 +32,6 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
-/.agents/
 /.angular/cache
 .sass-cache/
 /connect.lock
@@ -51,3 +50,4 @@ firebase-debug.log
 
 # Environment files
 /src/environments/environment*.ts
+!/src/environments/environment.example.ts

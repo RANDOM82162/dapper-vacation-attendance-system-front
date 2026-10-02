@@ -1,59 +1,46 @@
-# Verona NG
+# Sistema de vacaciones y asistencia — frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.
+Aplicación Angular para empleados, jefes y administradores de Dapper Technologies. El backend se encuentra en el repositorio `dapper-vacation-attendance-system-back`.
 
-## Development server
+## Requisitos
 
-To start a local development server, run:
+- Node.js 20 y npm.
+- Backend, MongoDB y Firebase Authentication configurados.
+- Inicio de sesión con correo y contraseña habilitado en Firebase.
 
-```bash
-ng serve
-```
+## Configuración local
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+1. Instala las dependencias con `npm ci`.
+2. Copia `src/environments/environment.example.ts` como `src/environments/environment.ts`.
+3. Configura `firebaseApiKey` y `firebaseAuthUrl` del proyecto Firebase. Para desarrollo local, configura también `apiBaseUrl`.
+4. Ejecuta `npm start` y abre `http://localhost:4200`.
 
-## Code scaffolding
+`environment.ts` es local y está ignorado por Git. La clave web de Firebase identifica el proyecto; las credenciales privadas de servicio pertenecen solo al backend.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+**Integración pendiente:** varios servicios de vacaciones, empleados y asistencia todavía apuntan directamente a `http://localhost:8080`. Deben centralizarse antes de publicar el frontend en otro dominio o integrarlo al ERP. Esta modificación quedó fuera de la limpieza aprobada.
 
-```bash
-ng generate component component-name
-```
+## Acceso y recuperación
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+- No existe registro público. Un administrador crea empleados y cuentas Firebase en `/admin/empleados`. Al crear la cuenta, la aplicación pide a Firebase un enlace para que el empleado defina su contraseña; si falla el envío, el administrador recibe un aviso y el empleado puede usar la recuperación del inicio de sesión.
+- El usuario inicia sesión en `/auth/login`.
+- `/auth/forgotpassword` pide a Firebase que envíe el correo de restablecimiento. La respuesta visible no revela si existe la cuenta.
+- Firebase puede completar el cambio en su página predeterminada. Si se desea que el enlace abra esta aplicación, configura en Firebase Authentication → Templates la URL de acción personalizada `https://TU-DOMINIO/auth/newpassword`. Esa ruta valida el código de Firebase y guarda la nueva contraseña. El dominio debe estar autorizado y el servidor web debe servir `index.html` para rutas Angular.
+- El usuario también puede cambiar su contraseña desde `/cuenta/configuracion` cuando ya inició sesión.
 
-```bash
-ng generate --help
-```
+## Pantallas principales
 
-## Building
+- `/`: panel según el rol.
+- `/vacaciones/*`: solicitudes, aprobaciones, historial y saldos.
+- `/asistencia/*`: carga de Excel, reporte y dashboard semanal.
+- `/admin/empleados`: gestión de cuentas por administradores.
+- `/cuenta/*`: perfil, notificaciones y configuración.
 
-To build the project run:
+Las rutas requieren un token Firebase y el backend valida los permisos. Las pantallas de muestra de Verona se retiraron.
 
-```bash
-ng build
-```
+## Compilación y verificación
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Ejecuta `npm run build` para generar `dist/verona-ng`. El build debe hacerse con un `environment.ts` correspondiente al destino.
 
-## Running unit tests
+`npm test -- --watch=false --browsers=ChromeHeadless` ejecuta las pruebas del flujo Firebase de recuperación de contraseña.
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Antes de entregar una versión al ERP, verifica con cuentas de cada rol el inicio de sesión, la recuperación de contraseña, las solicitudes y aprobaciones de vacaciones, el saldo, la carga repetida de un Excel y las consultas de asistencia. Las reglas pendientes sobre el alcance de los jefes y las autorizaciones del departamento Dirección requieren definición funcional; esta limpieza no las cambió.

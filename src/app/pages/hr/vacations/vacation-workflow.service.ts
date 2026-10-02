@@ -1,20 +1,32 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { AuthService } from '@/app/services/auth.service';
 
-export type VacationStatus = 'Pendiente' | 'Aprobada' | 'Rechazada' | 'Cambios solicitados';
+export type VacationStatus = 'Pendiente' | 'Aprobada' | 'Rechazada' | 'Cambios solicitados' | 'Cancelada';
 export type TagSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
 
+export interface VacationHistoryEvent {
+    message: string;
+    timestamp: number;
+}
+
+export type VacationHistoryEntry = string | VacationHistoryEvent;
+
 export interface VacationRequest {
+    backendId?: string;
     id: string;
     employee: string;
     department: string;
-    manager: string;
+    manager?: string;
     startDate: string;
     endDate: string;
     days: number;
+    paidDays?: number;
+    unpaidDays?: number;
     comments: string;
+    managerComment?: string;
     status: VacationStatus;
     updatedAt: string;
-    history: string[];
+    history: VacationHistoryEntry[];
 }
 
 export interface VacationBalanceRecord {
@@ -30,7 +42,6 @@ export interface VacationDraft {
     startDate: string;
     endDate: string;
     days: number;
-    manager: string;
     comments: string;
 }
 
@@ -38,87 +49,41 @@ export interface VacationDraft {
     providedIn: 'root'
 })
 export class VacationWorkflowService {
-    private readonly currentEmployee = 'Alejandro Paz';
+    private readonly auth = inject(AuthService);
 
-    readonly requests = signal<VacationRequest[]>([
-        {
-            id: 'VAC-001',
-            employee: 'Alejandro Paz',
-            department: 'Desarrollo',
-            manager: 'Cinthia Montoya',
-            startDate: '2026-09-07',
-            endDate: '2026-09-11',
-            days: 5,
-            comments: 'Solicito estos dias para descanso programado.',
-            status: 'Pendiente',
-            updatedAt: 'Enviada hoy',
-            history: ['Solicitud creada por Alejandro Paz.', 'Solicitud enviada a Cinthia Montoya.']
-        },
-        {
-            id: 'VAC-002',
-            employee: 'Alejandro Paz',
-            department: 'Desarrollo',
-            manager: 'Cinthia Montoya',
-            startDate: '2026-07-15',
-            endDate: '2026-07-16',
-            days: 2,
-            comments: 'Permiso aprobado previamente por direccion.',
-            status: 'Aprobada',
-            updatedAt: 'Aprobada por Cinthia Montoya',
-            history: ['Solicitud creada por Alejandro Paz.', 'Solicitud aprobada por Cinthia Montoya.', 'Saldo actualizado: -2 dias.']
-        },
-        {
-            id: 'VAC-003',
-            employee: 'Alejandro Paz',
-            department: 'Desarrollo',
-            manager: 'Cinthia Montoya',
-            startDate: '2026-10-05',
-            endDate: '2026-10-07',
-            days: 3,
-            comments: 'Solicito fechas para un compromiso personal.',
-            status: 'Rechazada',
-            updatedAt: 'Rechazada por jefe/director',
-            history: ['Solicitud creada por Alejandro Paz.', 'Solicitud enviada a Cinthia Montoya.', 'Solicitud rechazada por jefe/director.']
-        },
-        {
-            id: 'VAC-004',
-            employee: 'Alejandro Paz',
-            department: 'Desarrollo',
-            manager: 'Cinthia Montoya',
-            startDate: '2026-11-18',
-            endDate: '2026-11-20',
-            days: 3,
-            comments: 'Solicito ajuste de fechas por viaje familiar.',
-            status: 'Cambios solicitados',
-            updatedAt: 'Jefe/director solicito cambios',
-            history: ['Solicitud creada por Alejandro Paz.', 'Solicitud enviada a Cinthia Montoya.', 'Jefe/director solicito cambios en fechas o comentarios.']
-        }
-    ]);
+    readonly requests = signal<VacationRequest[]>([]);
 
-    readonly balances = signal<VacationBalanceRecord[]>([
-        { employee: 'Alejandro Paz', department: 'Desarrollo', initial: 14, used: 2, available: 12, lastMove: 'Solicitud aprobada el 16 jul.' }
-    ]);
+    readonly balances = signal<VacationBalanceRecord[]>([]);
 
-    readonly myRequests = computed(() => this.requests().filter((request) => request.employee === this.currentEmployee));
+    readonly myRequests = computed(() => this.requests().filter((request) => request.employee === this.auth.getEmployeeName()));
 
     readonly pendingApprovals = computed(() => this.requests().filter((request) => request.status === 'Pendiente' || request.status === 'Cambios solicitados'));
 
-    readonly currentEmployeeBalance = computed(() => this.getBalance(this.currentEmployee));
+    readonly currentEmployeeBalance = computed(() => this.getBalance(this.auth.getEmployeeName()));
 
     createRequest(draft: VacationDraft, status: VacationStatus = 'Pendiente') {
         const nextId = `VAC-${(this.requests().length + 1).toString().padStart(3, '0')}`;
+        const days = Number(draft.days);
+        const balance = this.getBalance(this.auth.getEmployeeName());
+        const paidDays = Math.min(Math.max(balance?.available ?? 0, 0), days);
+        const unpaidDays = Math.max(days - paidDays, 0);
         const request: VacationRequest = {
             id: nextId,
-            employee: this.currentEmployee,
-            department: 'Desarrollo',
-            manager: draft.manager,
+            employee: this.auth.getEmployeeName(),
+            department: this.auth.getEmployeeDepartment(),
             startDate: draft.startDate,
             endDate: draft.endDate,
-            days: Number(draft.days),
+            days,
+            paidDays,
+            unpaidDays,
             comments: draft.comments,
             status,
             updatedAt: 'Enviada hoy',
-            history: ['Solicitud creada por el empleado.', `Solicitud enviada a ${draft.manager}.`]
+            history: [
+                'Solicitud creada por el empleado.',
+                ...(unpaidDays > 0 ? [`Se estiman ${unpaidDays} día(s) sin goce de sueldo por exceder el saldo disponible.`] : []),
+                'Solicitud enviada para revisión.'
+            ]
         };
 
         this.requests.update((requests) => [request, ...requests]);
@@ -128,12 +93,10 @@ export class VacationWorkflowService {
     approveRequest(id: string, comment = '') {
         const request = this.requests().find((item) => item.id === id);
         if (!request || request.status === 'Aprobada') return false;
-
+        const reviewerName = this.getReviewerName();
         const balance = this.getBalance(request.employee);
-        if (!balance || balance.available < request.days) {
-            this.changeStatus(id, 'Rechazada', 'Rechazada automaticamente por saldo insuficiente.');
-            return false;
-        }
+        const paidDays = Math.min(Math.max(balance?.available ?? 0, 0), request.days);
+        const unpaidDays = Math.max(request.days - paidDays, 0);
 
         const reviewerComment = comment.trim() ? `Comentario: ${comment.trim()}` : 'Sin comentarios adicionales.';
 
@@ -143,8 +106,10 @@ export class VacationWorkflowService {
                     ? {
                           ...item,
                           status: 'Aprobada',
-                          updatedAt: 'Aprobada por jefe/director',
-                          history: [...item.history, 'Solicitud aprobada por jefe/director.', reviewerComment, `Saldo actualizado: -${item.days} dias.`]
+                          paidDays,
+                          unpaidDays,
+                          updatedAt: `Aprobada por ${reviewerName}`,
+                          history: [...item.history, `Solicitud aprobada por ${reviewerName}.`, reviewerComment, `${paidDays} día(s) con goce y ${unpaidDays} sin goce de sueldo.`, `Saldo actualizado: -${paidDays} días.`]
                       }
                     : item
             )
@@ -155,8 +120,8 @@ export class VacationWorkflowService {
                 item.employee === request.employee
                     ? {
                           ...item,
-                          used: item.used + request.days,
-                          available: item.available - request.days,
+                          used: item.used + paidDays,
+                          available: item.available - paidDays,
                           lastMove: `Solicitud ${request.id} aprobada`
                       }
                     : item
@@ -168,12 +133,12 @@ export class VacationWorkflowService {
 
     rejectRequest(id: string, comment = '') {
         const reviewerComment = comment.trim() ? ` Motivo: ${comment.trim()}` : '';
-        this.changeStatus(id, 'Rechazada', `Solicitud rechazada por jefe/director.${reviewerComment}`);
+        this.changeStatus(id, 'Rechazada', `Solicitud rechazada por ${this.getReviewerName()}.${reviewerComment}`);
     }
 
     requestChanges(id: string, comment = '') {
         const reviewerComment = comment.trim() ? ` Detalle: ${comment.trim()}` : '';
-        this.changeStatus(id, 'Cambios solicitados', `Jefe/director solicito cambios en fechas o comentarios.${reviewerComment}`);
+        this.changeStatus(id, 'Cambios solicitados', `${this.getReviewerName()} solicito cambios en fechas o comentarios.${reviewerComment}`);
     }
 
     getSeverity(status: VacationStatus): TagSeverity {
@@ -184,6 +149,7 @@ export class VacationWorkflowService {
             case 'Cambios solicitados':
                 return 'warn';
             case 'Rechazada':
+            case 'Cancelada':
                 return 'danger';
             default:
                 return 'secondary';
@@ -207,8 +173,7 @@ export class VacationWorkflowService {
     }
 
     canApprove(request: VacationRequest) {
-        const balance = this.getBalance(request.employee);
-        return Boolean(balance && balance.available >= request.days);
+        return request.days > 0;
     }
 
     private changeStatus(id: string, status: VacationStatus, historyEntry: string) {
@@ -224,6 +189,10 @@ export class VacationWorkflowService {
                     : request
             )
         );
+    }
+
+    private getReviewerName() {
+        return this.auth.getDisplayName() || this.auth.session()?.email || 'jefe/director';
     }
 
     private formatDate(value: string) {

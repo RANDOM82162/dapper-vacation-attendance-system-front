@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AppMenuitem } from '@/app/layout/components/menuitem/app.menuitem';
 import { RoleContextService } from '@/app/pages/hr/role-context.service';
+import { AuthService } from '@/app/services/auth.service';
 
 @Component({
     selector: '[app-menu]',
@@ -12,6 +13,7 @@ import { RoleContextService } from '@/app/pages/hr/role-context.service';
 })
 export class AppMenu {
     private roleContext = inject(RoleContextService);
+    private auth = inject(AuthService);
 
     model = computed<any[]>(() => {
         const shared = [
@@ -33,7 +35,7 @@ export class AppMenu {
                 items: [
                     { label: 'Nueva solicitud', icon: 'pi pi-plus', routerLink: ['/vacaciones/nueva'] },
                     { label: 'Mis solicitudes', icon: 'pi pi-list', routerLink: ['/vacaciones/mis-solicitudes'] },
-                    { label: 'Mis dias disponibles', icon: 'pi pi-clock', routerLink: ['/vacaciones/saldos'] }
+                    { label: 'Mis días disponibles', icon: 'pi pi-clock', routerLink: ['/vacaciones/saldos'] }
                 ]
             },
             {
@@ -42,6 +44,19 @@ export class AppMenu {
                 path: '/asistencia',
                 routerLink: ['/asistencia/reporte'],
                 items: [{ label: 'Mi asistencia', icon: 'pi pi-table', routerLink: ['/asistencia/reporte'] }]
+            }
+        ];
+
+        const managerPersonal = [
+            {
+                label: 'Vacaciones',
+                icon: 'pi pi-calendar',
+                path: '/vacaciones',
+                routerLink: ['/vacaciones/nueva'],
+                items: [
+                    { label: 'Nueva solicitud', icon: 'pi pi-plus', routerLink: ['/vacaciones/nueva'] },
+                    { label: 'Mis solicitudes', icon: 'pi pi-list', routerLink: ['/vacaciones/mis-solicitudes'] }
+                ]
             }
         ];
 
@@ -61,8 +76,11 @@ export class AppMenu {
                 label: 'Asistencia',
                 icon: 'pi pi-id-card',
                 path: '/asistencia',
-                routerLink: ['/asistencia/reporte'],
-                items: [{ label: 'Reporte semanal de asistencia', icon: 'pi pi-table', routerLink: ['/asistencia/reporte'] }]
+                routerLink: ['/asistencia/dashboard'],
+                items: [
+                    { label: 'Dashboard semanal', icon: 'pi pi-chart-bar', routerLink: ['/asistencia/dashboard'] },
+                    { label: 'Reporte semanal de asistencia', icon: 'pi pi-table', routerLink: ['/asistencia/reporte'] }
+                ]
             }
         ];
 
@@ -71,8 +89,9 @@ export class AppMenu {
                 label: 'Asistencia',
                 icon: 'pi pi-id-card',
                 path: '/asistencia',
-                routerLink: ['/asistencia/reporte'],
+                routerLink: ['/asistencia/dashboard'],
                 items: [
+                    { label: 'Dashboard semanal', icon: 'pi pi-chart-bar', routerLink: ['/asistencia/dashboard'] },
                     { label: 'Reporte semanal de asistencia', icon: 'pi pi-table', routerLink: ['/asistencia/reporte'] },
                     { label: 'Cargar Excel', icon: 'pi pi-upload', routerLink: ['/asistencia/cargar'] }
                 ]
@@ -94,7 +113,7 @@ export class AppMenu {
 
         const admin = [
             {
-                label: 'Administracion',
+                label: 'Administración',
                 icon: 'pi pi-briefcase',
                 path: '/admin',
                 routerLink: ['/admin/empleados'],
@@ -106,11 +125,29 @@ export class AppMenu {
 
         switch (this.roleContext.currentRole()) {
             case 'employee':
+                if (this.isDirectionUser()) {
+                    return [...shared, ...employee.slice(0, 1), ...adminAttendance];
+                }
                 return [...shared, ...employee];
             case 'manager':
-                return [...shared, ...manager];
+                if (this.isDirectionUser()) {
+                    return [...shared, ...managerPersonal, ...manager.slice(0, 1), ...adminAttendance];
+                }
+                return [...shared, ...managerPersonal, ...manager];
             default:
                 return [...shared, ...adminTeam, ...adminAttendance, ...admin];
         }
     });
+
+    private isDirectionUser() {
+        return this.normalize(this.auth.getEmployeeDepartment()).includes('direccion');
+    }
+
+    private normalize(value: string) {
+        return value
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim()
+            .toLowerCase();
+    }
 }

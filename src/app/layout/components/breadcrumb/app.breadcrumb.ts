@@ -35,13 +35,17 @@ export class AppBreadcrumb {
 
     private addBreadcrumb(route: ActivatedRouteSnapshot, parentUrl: string[], breadcrumbs: Breadcrumb[]) {
         const routeUrl = parentUrl.concat(route.url.map((url) => url.path));
-        const breadcrumb = route.data['breadcrumb'];
+        const breadcrumb = route.data['breadcrumb'] as string | string[] | undefined;
         const parentBreadcrumb = route.parent && route.parent.data ? route.parent.data['breadcrumb'] : null;
 
         if (breadcrumb && breadcrumb !== parentBreadcrumb) {
-            breadcrumbs.push({
-                label: route.data['breadcrumb'],
-                url: '/' + routeUrl.join('/')
+            const labels = Array.isArray(breadcrumb) ? breadcrumb : [breadcrumb];
+
+            labels.forEach((label, index) => {
+                breadcrumbs.push({
+                    label,
+                    url: index === labels.length - 1 ? '/' + routeUrl.join('/') : undefined
+                });
             });
         }
 

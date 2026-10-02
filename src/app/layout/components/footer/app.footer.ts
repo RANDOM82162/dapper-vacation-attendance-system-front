@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { LayoutService } from '@/app/layout/service/layout.service';
 
 @Component({
@@ -11,4 +11,6 @@ import { LayoutService } from '@/app/layout/service/layout.service';
 })
 export class AppFooter {
     layoutService = inject(LayoutService);
+
+    brandLogo = computed(() => (this.layoutService.isDarkTheme() ? '/layout/images/dapper-light.png' : '/layout/images/dapper-black.png'));
 }

@@ -2,6 +2,8 @@ import { Injectable, computed, signal } from '@angular/core';
 
 export type UserRole = 'employee' | 'manager' | 'admin';
 
+export type EmployeeRole = 'Empleado' | 'Jefe/Director' | 'Administrador';
+
 export interface RoleOption {
     label: string;
     value: UserRole;
@@ -18,11 +20,21 @@ export class RoleContextService {
         { label: 'Administrador', value: 'admin', description: 'Gestiona empleados, asistencia y configuracion' }
     ];
 
-    readonly currentRole = signal<UserRole>('admin');
+    readonly currentRole = signal<UserRole>('employee');
 
-    readonly currentRoleLabel = computed(() => this.roles.find((role) => role.value === this.currentRole())?.label ?? 'Administrador');
+    readonly currentRoleLabel = computed(() => this.roles.find((role) => role.value === this.currentRole())?.label ?? 'Empleado');
 
     setRole(role: UserRole) {
         this.currentRole.set(role);
+    }
+
+    setRoleFromEmployeeRole(role: EmployeeRole) {
+        const roleMap: Record<EmployeeRole, UserRole> = {
+            Empleado: 'employee',
+            'Jefe/Director': 'manager',
+            Administrador: 'admin'
+        };
+
+        this.currentRole.set(roleMap[role] || 'employee');
     }
 }
